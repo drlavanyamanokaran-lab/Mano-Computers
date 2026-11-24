@@ -128,12 +128,49 @@ function svgData(key,label){
   return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
 }
 const FAMILY_PHOTOS={"slim3": "https://cdn.store-assets.com/s/752630/i/54406962.png?width=1024", "slim5": "https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/original/JHhDZfZSG2-lenovo-83bf0043in-laptop-494421476-i-1-1200wx1200h.jpeg", "convertible": "https://bf1af2.akinoncloudcdn.com/products/2025/03/24/353238/b6755d80-d4bf-419b-94c2-8b1d7bf19026_size2048_cropCenter.jpg", "yoga2in1": "https://bf1af2.akinoncloudcdn.com/products/2025/03/24/353238/b6755d80-d4bf-419b-94c2-8b1d7bf19026_size2048_cropCenter.jpg", "yogaSlim": "https://www.elesen.lt/UserFiles/Products/Images/438219-660940.jpg", "loq": "https://dwecxxryy5p59.cloudfront.net/catalogs/6/9/6/4/69642fc33494d1f0fd41df40eea6c35ae79dff3f_imgi_3_7145717d9cf0190adbb35d7c6cc1aea4dd5b2dc50137541850fcf5082e69c019.jpg", "legion": "https://p2-ofp.static.pub/fes/cms/2025/09/04/yqxxrlccqneoe76zp7l5xo9fp8qb51912327.png", "aio": "https://mobileplanet.ua/uploads/product/2025-9-6/lenovo-ideacentre-aio-24-i5-13420h-16gb-512-f0hn00-353930.webp", "tower": "https://gfx3.senetic.com/akeneo-catalog/3/4/2/6/3426937541c4ade089f3211c52df5b25295e014c_1752450_12U60004PB_custom_image1.jpg", "monitor": "https://psrefstuff.lenovo.com/syspool/Sys/Image/Lenovo_Monitors/Lenovo_L27_4C/Compressedimage/Lenovo_L27_4C_CT1_01.png", "lenovoTab": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "ideaTab": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "ideaTabPlus": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "tabPlus": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "ideaTabPro": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "yogaTab": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png", "tablet": "https://www.e-lenovo.gr/image/catalog/2025_PRODUCT_PHOTOS/IDEA%20TAB/Idea_Tab_CT1_01.png"};
+
+// Model-series photo sources (do not confuse representative family photos with exact SKU photography).
+// 82XQ = IdeaPad Slim 3 15AMN8; 82X7 = 15IRU8; 83K1 = 15IRH10;
+// 82XM = 15ABR8. Keep family picture for product lines without a verified close match.
+const MODEL_SERIES_PHOTOS={
+  "82XQ": [
+    "https://saatec.ec/696-large_default/portatil-lenovo-15amn8-ideapad-slim-3-156.jpg",
+    "https://mobileplanet.ua/uploads/product/2026-09-22/lenovo-ideapad-slim-3-15amn8-82xq01k5ra-1790026733-398421.webp"
+  ],
+  "82X7": [
+    "https://assets.mmsrg.com/isr/166325/c1/-/ASSET_MMS_154559534?align=center&cdx=960&cdy=720&cox=0&coy=0&ex=960&ey=720&format=jpg&quality=80&resizesource=&sp=yes&strip=yes&trim=&unsharp=1.5x1+0.7+0.02&x=960&y=720",
+    "https://www.myg.in/images/thumbnails/600/600/detailed/113/Lenovo-ideapad-slim-3-intel-core-i3-13th-gen-windows-11-home-laptop-82x700g3in-arctic-grey-8gb-512gb-Front-Left-View.png.png"
+  ],
+  "83K1": [
+    "https://compstore.am/web/image/product.product/6257/image_1024/Lenovo%20IdeaPad%20Slim%203%2015IRH10?unique=b09c552",
+    "https://elnstore.com/cdn/shop/files/IdeaPad_Slim_3_15IRH10_CT2_07_82d9d94f-a554-4e99-b27f-5b21d9097f09.png?v=1746845249&width=1946"
+  ],
+  "82XM": ["https://store.lenovo.com/media/catalog/product/8/2/82XM0113IN-0_1_1.jpg"]
+};
+function cleanPhotoFallback(prefix){
+  const styles={"82XQ":["#9da8ae","#f2a2af","#d8a2d7"],"82X7":["#435d7c","#e7b2d4","#7485ce"],"83K1":["#646976","#8192b7","#b9d2e4"],"82XM":["#8e969e","#dbc9ea","#76b5d9"]};
+  const t=styles[prefix]||styles['82XQ'];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400"><defs><linearGradient id="w" x2="1" y2="1"><stop stop-color="${t[1]}"/><stop offset="1" stop-color="${t[2]}"/></linearGradient><linearGradient id="b" x2="0" y2="1"><stop stop-color="${t[0]}"/><stop offset="1" stop-color="#3c4856"/></linearGradient></defs><rect width="600" height="400" fill="#f8fafc"/><g transform="translate(82 32)"><path d="M30 14Q30 4 43 4H396Q410 4 410 18V262H30Z" fill="#25313f"/><rect x="40" y="14" width="360" height="237" fill="url(#w)"/><path d="M75 185Q140 28 345 36Q251 66 217 212Q180 260 75 185" fill="#fff" opacity=".23"/><path d="M45 264H402L451 316Q455 324 444 326H-6Q-20 324-11 314Z" fill="url(#b)"/><path d="M100 277H345L378 303H73Z" fill="#2c3846" opacity=".8"/><g stroke="#9faab9" opacity=".45">${Array.from({length:12},(_,i)=>'<path d="M'+(84+i*24)+' 279v21"/>').join('')}</g><path d="M164 307H284L291 318H155Z" fill="#9aa5ad" opacity=".5"/></g></svg>`;
+  return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+}
+function imageForProduct(p,key){
+  const prefix=String(p.model||'').slice(0,4).toUpperCase();
+  const sources=key==='slim3'?(MODEL_SERIES_PHOTOS[prefix]||[]):[];
+  return {src:sources[0]||(FAMILY_PHOTOS[key]||FAMILY_PHOTOS.slim3), alternates:sources.slice(1), fallback:sources.length?cleanPhotoFallback(prefix):svgData(key,p.name), label:sources.length?'Representative Lenovo model-family photograph':'Lenovo product-family photograph'};
+}
+function tryAlternateImage(img){
+  let alternatives=[];
+  try{alternatives=JSON.parse(img.dataset.alternates||'[]')}catch(e){}
+  if(alternatives.length){img.dataset.alternates=JSON.stringify(alternatives.slice(1));img.src=alternatives[0];return;}
+  img.onerror=null;
+  img.src=img.dataset.fallback;
+}
 function draw(){
   let rows=PRODUCTS.filter(p=>(group.value==='all'||p.group===group.value)&&Object.values(p).join(' ').toLowerCase().includes(search.value.toLowerCase().trim()));
   if(sort.value==='low')rows.sort((a,b)=>a.price-b.price);
   if(sort.value==='high')rows.sort((a,b)=>b.price-a.price);
   count.textContent=`${rows.length} product${rows.length===1?'':'s'} shown · Published brochure prices · Contact showroom for current rates`;
-  grid.innerHTML=rows.length?rows.map(p=>{const key=keyFor(p); const img=FAMILY_PHOTOS[key]||FAMILY_PHOTOS.slim3;const fallback=svgData(key,p.name); return `<article class="product"><div class="visual"><img src="${img}" data-fallback="${fallback}" onerror="this.onerror=null;this.src=this.dataset.fallback" loading="lazy" referrerpolicy="no-referrer" alt="Representative real Lenovo ${esc(p.name)} family photograph"></div><span class="chip">${esc(p.group)}</span><h2>${esc(p.name)}</h2><div class="model">Model: ${esc(p.model)}</div><p class="spec">${[p.cpu,p.ram&&'RAM: '+p.ram,p.storage&&'Storage: '+p.storage,p.display&&'Display: '+p.display,p.notes].filter(Boolean).map(esc).join('<br>')}</p><div class="price">₹${p.price.toLocaleString('en-IN')}*</div><div class="subprice">Festive brochure price · subject to reconfirmation</div><div class="actions"><a class="btn" href="mailto:manocomputers.dgl@gmail.com?subject=${encodeURIComponent('Lenovo price enquiry: '+p.model)}&body=${encodeURIComponent('Hello Mano Computers, please confirm the current price, availability and warranty of '+p.name+' (model '+p.model+'). Brochure price ₹'+p.price.toLocaleString('en-IN')+'.')}">Request Current Price ↗</a><a class="btn btnline" href="index.html#contact">Contact Showroom ↗</a></div></article>`}).join(''):'<div class="noresults">No products match your search. Try another model or category.</div>'
+  grid.innerHTML=rows.length?rows.map(p=>{const key=keyFor(p);const photo=imageForProduct(p,key);const img=photo.src;const fallback=photo.fallback; return `<article class="product"><div class="visual"><img src="${img}" data-fallback="${fallback}" data-alternates="${esc(JSON.stringify(photo.alternates))}" onerror="tryAlternateImage(this)" loading="lazy" referrerpolicy="no-referrer" alt="${esc(p.name)} ${esc(p.model)}: ${esc(photo.label)}"></div><span class="chip">${esc(p.group)}</span><h2>${esc(p.name)}</h2><div class="model">Model: ${esc(p.model)}</div><p class="spec">${[p.cpu,p.ram&&'RAM: '+p.ram,p.storage&&'Storage: '+p.storage,p.display&&'Display: '+p.display,p.notes].filter(Boolean).map(esc).join('<br>')}</p><div class="price">₹${p.price.toLocaleString('en-IN')}*</div><div class="subprice">Festive brochure price · subject to reconfirmation</div><div class="actions"><a class="btn" href="mailto:manocomputers.dgl@gmail.com?subject=${encodeURIComponent('Lenovo price enquiry: '+p.model)}&body=${encodeURIComponent('Hello Mano Computers, please confirm the current price, availability and warranty of '+p.name+' (model '+p.model+'). Brochure price ₹'+p.price.toLocaleString('en-IN')+'.')}">Request Current Price ↗</a><a class="btn btnline" href="index.html#contact">Contact Showroom ↗</a></div></article>`}).join(''):'<div class="noresults">No products match your search. Try another model or category.</div>'
 }
 search.addEventListener('input',draw);group.addEventListener('change',draw);sort.addEventListener('change',draw);draw();
 </script>
