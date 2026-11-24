@@ -64,6 +64,9 @@ header.shop-header{position:relative;z-index:30;background:#fff;border-bottom:1p
 main.wrap{padding-bottom:55px}
 .toolbar{margin-top:18px}
 @media(max-width:740px){.shop-heading{display:none}.shop-head-inner{min-height:60px}.shop-nav-inner{gap:14px}.shop-nav-inner>a,.shop-dropdown>a{font-size:12px;padding:12px 0}.shop-menu{min-width:175px}.new-hero-mark{display:none}.new-hero{padding:18px 0 22px}.catalog-head h2{font-size:21px}}
+.product .visual{position:relative;background:#f8fbff;overflow:hidden}
+.product .visual img{object-fit:contain;object-position:center;background:#f8fbff}
+.photo-status{position:absolute;top:9px;left:9px;right:9px;width:fit-content;max-width:calc(100% - 18px);z-index:2;background:#fffef5ed;border:1px solid #d8e6f4;border-radius:20px;padding:4px 9px;color:#314e73;font-size:10px;font-weight:700;line-height:1.25;box-shadow:0 2px 7px #112a4b15}
 </style>
 </head>
 <body>
@@ -84,23 +87,26 @@ const families=[...new Set(PRODUCTS.map(p=>p.group))];for(const fam of families)
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function keyFor(p){
   const n=(p.name+' '+p.group).toLowerCase();
-  if(n.includes('legion')) return 'legion';
-  if(n.includes('loq')) return 'loq';
-  if(n.includes('yoga tab')) return 'yogaTab';
-  if(n.includes('tab plus')) return 'tabPlus';
-  if(n.includes('idea tab pro')) return 'ideaTabPro';
-  if(n.includes('idea tab plus')) return 'ideaTabPlus';
-  if(n.includes('idea tab')) return 'ideaTab';
-  if(n.includes('lenovo tab')) return 'lenovoTab';
+  // Product category takes precedence over marketing series names.
+  if(p.group==='Monitors') return 'monitor';
+  if(p.group==='Tablets'){
+    if(n.includes('yoga tab')) return 'yogaTab';
+    if(n.includes('idea tab pro')) return 'ideaTabPro';
+    if(n.includes('idea tab plus')) return 'ideaTabPlus';
+    if(n.includes('tab plus')) return 'tabPlus';
+    if(n.includes('idea tab')) return 'ideaTab';
+    if(n.includes('lenovo tab')) return 'lenovoTab';
+    return 'tablet';
+  }
   if(n.includes('yoga slim')) return 'yogaSlim';
   if(n.includes('yoga 7')) return 'yoga2in1';
   if(n.includes('2-in-1')) return 'convertible';
+  if(n.includes('legion')) return 'legion';
+  if(n.includes('loq')) return 'loq';
   if(n.includes('slim 5')) return 'slim5';
   if(n.includes('slim 3')) return 'slim3';
   if(n.includes('aio')) return 'aio';
   if(n.includes('tower')) return 'tower';
-  if(n.includes('monitor') || n.includes('d22') || n.includes('l22') || n.includes('l24') || n.includes('l27') || n.includes('r27') || n.includes('l32p')) return 'monitor';
-  if(n.includes('tablet') || p.group==='Tablets') return 'tablet';
   return 'laptop';
 }
 function svgData(key,label){
@@ -155,8 +161,24 @@ function cleanPhotoFallback(prefix){
 }
 function imageForProduct(p,key){
   const prefix=String(p.model||'').slice(0,4).toUpperCase();
-  const sources=key==='slim3'?(MODEL_SERIES_PHOTOS[prefix]||[]):[];
-  return {src:sources[0]||(FAMILY_PHOTOS[key]||FAMILY_PHOTOS.slim3), alternates:sources.slice(1), fallback:sources.length?cleanPhotoFallback(prefix):svgData(key,p.name), label:sources.length?'Representative Lenovo model-family photograph':'Lenovo product-family photograph'};
+  const modelPhotos=key==='slim3'?(MODEL_SERIES_PHOTOS[prefix]||[]):[];
+  // We must not present a different tablet/monitor/gaming-laptop family as the exact product.
+  const familyImageKey=['lenovoTab','ideaTab','ideaTabPlus','tabPlus','ideaTabPro','yogaTab','monitor'].includes(key);
+  const isSpecificMonitor=p.group==='Monitors';
+  if(isSpecificMonitor){
+    // The existing catalogue has nine different monitor models, but only one generic
+    // L27-4C photograph. Avoid misidentifying other monitors as the L27-4C.
+    if(p.model==='L27-4C') return {src:FAMILY_PHOTOS.monitor,alternates:[],fallback:svgData('monitor',p.name),label:'Lenovo L27-4C product-family photo',isPhoto:true};
+    return {src:svgData('monitor',p.name),alternates:[],fallback:svgData('monitor',p.name),label:'Illustration: product photo awaiting model verification',isPhoto:false};
+  }
+  if(familyImageKey){
+    // One shared Lenovo Idea Tab image cannot accurately represent every tablet series.
+    if(key==='ideaTab') return {src:FAMILY_PHOTOS.ideaTab,alternates:[],fallback:svgData(key,p.name),label:'Representative Idea Tab family photo',isPhoto:true};
+    return {src:svgData(key,p.name),alternates:[],fallback:svgData(key,p.name),label:'Illustration: exact product photo not verified',isPhoto:false};
+  }
+  const sources=modelPhotos;
+  const family=FAMILY_PHOTOS[key];
+  return {src:sources[0]||family||svgData(key,p.name),alternates:sources.slice(1),fallback:sources.length?cleanPhotoFallback(prefix):svgData(key,p.name),label:sources.length?'Representative model-series photo':'Representative Lenovo product-family photo',isPhoto:!!(sources.length||family)};
 }
 function tryAlternateImage(img){
   let alternatives=[];
@@ -170,7 +192,7 @@ function draw(){
   if(sort.value==='low')rows.sort((a,b)=>a.price-b.price);
   if(sort.value==='high')rows.sort((a,b)=>b.price-a.price);
   count.textContent=`${rows.length} product${rows.length===1?'':'s'} shown · Published brochure prices · Contact showroom for current rates`;
-  grid.innerHTML=rows.length?rows.map(p=>{const key=keyFor(p);const photo=imageForProduct(p,key);const img=photo.src;const fallback=photo.fallback; return `<article class="product"><div class="visual"><img src="${img}" data-fallback="${fallback}" data-alternates="${esc(JSON.stringify(photo.alternates))}" onerror="tryAlternateImage(this)" loading="lazy" referrerpolicy="no-referrer" alt="${esc(p.name)} ${esc(p.model)}: ${esc(photo.label)}"></div><span class="chip">${esc(p.group)}</span><h2>${esc(p.name)}</h2><div class="model">Model: ${esc(p.model)}</div><p class="spec">${[p.cpu,p.ram&&'RAM: '+p.ram,p.storage&&'Storage: '+p.storage,p.display&&'Display: '+p.display,p.notes].filter(Boolean).map(esc).join('<br>')}</p><div class="price">₹${p.price.toLocaleString('en-IN')}*</div><div class="subprice">Festive brochure price · subject to reconfirmation</div><div class="actions"><a class="btn" href="mailto:manocomputers.dgl@gmail.com?subject=${encodeURIComponent('Lenovo price enquiry: '+p.model)}&body=${encodeURIComponent('Hello Mano Computers, please confirm the current price, availability and warranty of '+p.name+' (model '+p.model+'). Brochure price ₹'+p.price.toLocaleString('en-IN')+'.')}">Request Current Price ↗</a><a class="btn btnline" href="index.html#contact">Contact Showroom ↗</a></div></article>`}).join(''):'<div class="noresults">No products match your search. Try another model or category.</div>'
+  grid.innerHTML=rows.length?rows.map(p=>{const key=keyFor(p);const photo=imageForProduct(p,key);const img=photo.src;const fallback=photo.fallback; return `<article class="product"><div class="visual"><span class="photo-status">${esc(photo.label)}</span><img src="${img}" data-fallback="${fallback}" data-alternates="${esc(JSON.stringify(photo.alternates))}" onerror="tryAlternateImage(this)" loading="lazy" referrerpolicy="no-referrer" alt="${esc(p.name)} ${esc(p.model)}: ${esc(photo.label)}"></div><span class="chip">${esc(p.group)}</span><h2>${esc(p.name)}</h2><div class="model">Model: ${esc(p.model)}</div><p class="spec">${[p.cpu,p.ram&&'RAM: '+p.ram,p.storage&&'Storage: '+p.storage,p.display&&'Display: '+p.display,p.notes].filter(Boolean).map(esc).join('<br>')}</p><div class="price">₹${p.price.toLocaleString('en-IN')}*</div><div class="subprice">Festive brochure price · subject to reconfirmation</div><div class="actions"><a class="btn" href="mailto:manocomputers.dgl@gmail.com?subject=${encodeURIComponent('Lenovo price enquiry: '+p.model)}&body=${encodeURIComponent('Hello Mano Computers, please confirm the current price, availability and warranty of '+p.name+' (model '+p.model+'). Brochure price ₹'+p.price.toLocaleString('en-IN')+'.')}">Request Current Price ↗</a><a class="btn btnline" href="index.html#contact">Contact Showroom ↗</a></div></article>`}).join(''):'<div class="noresults">No products match your search. Try another model or category.</div>'
 }
 search.addEventListener('input',draw);group.addEventListener('change',draw);sort.addEventListener('change',draw);draw();
 </script>
