@@ -11,3 +11,6 @@ The catalogue is prepared to load exact-model product photos from `images/brothe
 - Do not merge until assets have been verified, and check browser console for image failures.
 
 The product prices, filters, sorting, stock status, and modal details remain unchanged.
+
+## Manufacturer image preview (draft only)
+Four exact-model image URLs are now wired into the draft page for DCP-T230 (brochure: DCP 230), DCP-T430W, DCP-T530DW and DCP-T730DW. These external Brother-hosted images are a **preview**, not cleared production assets. Manufacturer or distributor permission and locally hosted copies are still required before deploying. The remaining 30 cards will show their category illustrations until verified images are sourced.
